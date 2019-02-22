@@ -34,6 +34,20 @@ class TowerOfHanoiGame(GameMaster):
             A Tuple of Tuples that represent the game state
         """
         ### student code goes here
+
+        t = []
+        for i in range(1, 4):
+            info = self.kb.kb_ask(parse_input('fact: (on ?DISK peg' + str(i) + ')'))
+            states = []
+            if info:
+                for piece in info:
+                    disk = piece['?DISK']
+                    num = int(disk[-1])
+                    states.append(num)
+            states.sort()
+            tuptemp = tuple(states)
+            t.append(tuptemp)
+        return tuple(t)
         pass
 
     def makeMove(self, movable_statement):
@@ -53,6 +67,34 @@ class TowerOfHanoiGame(GameMaster):
             None
         """
         ### Student code goes here
+
+        ##Change the on statements first
+        ### ADD our known knowledge
+        disk = movable_statement.terms[0]
+        speg = movable_statement.terms[1]
+        fpeg = movable_statement.terms[2]
+
+        states = self.getGameState()
+
+
+        self.kb.kb_retract(parse_input('fact: (on ' + str(disk) + ' ' + str(speg) + ')'))
+        self.kb.kb_retract(parse_input('fact: (top ' + str(disk) + ' ' + str(speg) + ')'))
+        self.kb.kb_assert(parse_input('fact: (on ' + str(disk) + ' ' + str(fpeg) + ')'))
+        self.kb.kb_assert(parse_input('fact: (top ' + str(disk) + ' ' + str(fpeg) + ')'))
+
+        spegn = int(str(speg)[-1])
+        if len(states[spegn - 1]) > 1:
+            nt = 'disk' + str(states[spegn - 1][1])
+            self.kb.kb_assert(parse_input('fact: (top ' + nt + ' ' + str(speg) + ')'))
+        else:
+            self.kb.kb_assert(parse_input('fact: (empty ' + str(speg) + ')'))
+
+        fpegn = int(str(fpeg)[-1])
+        if len(states[fpegn - 1]) <= 0:
+            self.kb.kb_retract(parse_input('fact: (empty ' + str(fpeg) + ')'))
+        else:
+            ot = 'disk' + str(states[fpegn - 1][0])
+            self.kb.kb_retract(parse_input('fact: (top ' + ot + ' ' + str(fpeg) + ')'))
         pass
 
     def reverseMove(self, movable_statement):
@@ -100,6 +142,23 @@ class Puzzle8Game(GameMaster):
             A Tuple of Tuples that represent the game state
         """
         ### Student code goes here
+        gen_state = []
+        for i in range(1, 4):
+            t = []
+            for j in range(1, 4):
+                s = 'fact: (loc ?TILE pos' + str(j) + ' pos' + str(i) + ')'
+                binds = self.kb.kb_ask(parse_input(s))
+                if binds:
+                    for b in binds:
+                        tile = b['?TILE']
+                        num = tile[-1]
+                        if num == 'y':
+                            num = -1
+                        t.append(int(num))
+            tup = tuple(t)
+            gen_state.append(tup)
+
+        return tuple(gen_state)
         pass
 
     def makeMove(self, movable_statement):
@@ -119,6 +178,36 @@ class Puzzle8Game(GameMaster):
             None
         """
         ### Student code goes here
+        tile = movable_statement.terms[0]
+        initx = movable_statement.terms[1]
+        inity = movable_statement.terms[2]
+        finx = movable_statement.terms[3]
+        finy = movable_statement.terms[4]
+
+        #if(initx == finx and inity == finy):
+            #print("fuck")
+            #return
+
+
+        #if str(initx)[-1] != '2' and str(inity)[-1] != '2' and str(finx)[-1] != '2' and str(finy)[-1] != '2':
+            #print("weird error")
+            #return
+
+
+
+
+        ret_stat = 'fact: (loc ' + str(tile) + ' ' + str(initx) + ' ' + str(inity) + ')'
+        self.kb.kb_retract(parse_input(ret_stat))
+
+        add_stat = 'fact: (loc ' + str(tile) + ' ' + str(finx) + ' ' + str(finy) + ')'
+        self.kb.kb_assert(parse_input(add_stat))
+
+        ##must also change empty
+        empty_stat = 'fact: (loc empty ' + str(initx) + ' ' + str(inity) + ')'
+        self.kb.kb_assert(parse_input(empty_stat))
+
+        empty_ret = 'fact: (loc empty ' + str(finx) + ' ' + str(finy) + ')'
+        self.kb.kb_retract(parse_input(empty_ret))
         pass
 
     def reverseMove(self, movable_statement):
