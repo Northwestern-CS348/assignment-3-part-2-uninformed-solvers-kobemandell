@@ -20,7 +20,7 @@ class SolverDFS(UninformedSolver):
         """
         ### Student code goes here
         #print(self.currentState.state)
-        if self.currentState.state == self.victoryCondition:
+        if self.victoryCondition == self.currentState.state:
             return True
 
 
@@ -106,15 +106,15 @@ class SolverBFS(UninformedSolver):
             True if the desired solution state is reached, False otherwise
         """
         ### Student code goes here
-        print(self.currentState.state)
-        if self.currentState.state == self.victoryCondition:
+        #print(self.currentState.state)
+        if self.victoryCondition == self.currentState.state:
             return True
 
         moves = self.gm.getMovables()
 
-        if moves:
-            for i in moves:
-               print(i)
+        # if moves:
+        #     for i in moves:
+        #        print(i)
 
         if moves and not self.currentState.children:
             self.findChildren(self.currentState)
@@ -183,10 +183,19 @@ class SolverBFS(UninformedSolver):
                 #print("there")
                 gState = GameState(newState, gs.depth + 1, mov)
                 #print(gState.state)
-                if gState not in self.visited.keys():
+
+                found = False
+                for tups in self.added.keys():
+                    if tups.state == newState:
+                        found = True
+                        break
+
+                if gState not in self.visited.keys() and not found:
                     gs.children.append(gState)
                     self.queue.put(gState)
                     gState.parent = gs
+                    self.added[gState] = True
+
                 self.gm.reverseMove(mov)
 
     def findMoves(self, gs):

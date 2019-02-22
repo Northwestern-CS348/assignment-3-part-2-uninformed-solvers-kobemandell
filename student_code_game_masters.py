@@ -76,25 +76,25 @@ class TowerOfHanoiGame(GameMaster):
 
         states = self.getGameState()
 
-
-        self.kb.kb_retract(parse_input('fact: (on ' + str(disk) + ' ' + str(speg) + ')'))
-        self.kb.kb_retract(parse_input('fact: (top ' + str(disk) + ' ' + str(speg) + ')'))
-        self.kb.kb_assert(parse_input('fact: (on ' + str(disk) + ' ' + str(fpeg) + ')'))
-        self.kb.kb_assert(parse_input('fact: (top ' + str(disk) + ' ' + str(fpeg) + ')'))
-
-        spegn = int(str(speg)[-1])
-        if len(states[spegn - 1]) > 1:
-            nt = 'disk' + str(states[spegn - 1][1])
-            self.kb.kb_assert(parse_input('fact: (top ' + nt + ' ' + str(speg) + ')'))
-        else:
-            self.kb.kb_assert(parse_input('fact: (empty ' + str(speg) + ')'))
-
         fpegn = int(str(fpeg)[-1])
         if len(states[fpegn - 1]) <= 0:
             self.kb.kb_retract(parse_input('fact: (empty ' + str(fpeg) + ')'))
         else:
             ot = 'disk' + str(states[fpegn - 1][0])
             self.kb.kb_retract(parse_input('fact: (top ' + ot + ' ' + str(fpeg) + ')'))
+
+        self.kb.kb_assert(parse_input('fact: (top ' + str(disk) + ' ' + str(fpeg) + ')'))
+        self.kb.kb_assert(parse_input('fact: (on ' + str(disk) + ' ' + str(fpeg) + ')'))
+        self.kb.kb_retract(parse_input('fact: (on ' + str(disk) + ' ' + str(speg) + ')'))
+        self.kb.kb_retract(parse_input('fact: (top ' + str(disk) + ' ' + str(speg) + ')'))
+
+
+        spegn = int(str(speg)[-1])
+        if len(states[spegn - 1]) <= 1:
+            self.kb.kb_assert(parse_input('fact: (empty ' + str(speg) + ')'))
+        else:
+            nt = 'disk' + str(states[spegn - 1][1])
+            self.kb.kb_assert(parse_input('fact: (top ' + nt + ' ' + str(speg) + ')'))
         pass
 
     def reverseMove(self, movable_statement):
@@ -185,7 +185,6 @@ class Puzzle8Game(GameMaster):
         finy = movable_statement.terms[4]
 
         #if(initx == finx and inity == finy):
-            #print("fuck")
             #return
 
 
