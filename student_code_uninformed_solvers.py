@@ -114,7 +114,7 @@ class SolverBFS(UninformedSolver):
 
         if moves:
             for i in moves:
-                print(i)
+               print(i)
 
         if moves and not self.currentState.children:
             self.findChildren(self.currentState)
@@ -125,26 +125,15 @@ class SolverBFS(UninformedSolver):
                 self.gm.reverseMove(self.currentState.requiredMovable)
                 self.currentState = self.currentState.parent
 
-            moves = []
             temp = child
-            while temp.parent:
-                moves.append(temp.requiredMovable)
-                self.gm.reverseMove(temp.requiredMovable)
-                temp = temp.parent
+            steps = self.findMoves(temp)
+            steps.reverse()
 
-            ind = len(moves) - 1
-            while ind >= 0:
-                step = moves[ind]
+            for step in steps:
                 self.gm.makeMove(step)
-                ind = ind - 1
 
             self.visited[child] = True
             self.currentState = child
-
-
-
-
-
 
         # pstate = self.currentState.parent
         # if self.currentState.parent and len(pstate.children) > pstate.nextChildToVisit:
@@ -199,3 +188,11 @@ class SolverBFS(UninformedSolver):
                     self.queue.put(gState)
                     gState.parent = gs
                 self.gm.reverseMove(mov)
+
+    def findMoves(self, gs):
+        moves = []
+        while gs.parent:
+            moves.append(gs.requiredMovable)
+            self.gm.reverseMove(gs.requiredMovable)
+            gs = gs.parent
+        return moves
